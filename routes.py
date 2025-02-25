@@ -45,13 +45,13 @@ def register():
 def login():
     data = request.get_json()
 
-    if not data or 'username' not in data or 'password' not in data:
+    if not data or 'email' not in data or 'password' not in data:
         return jsonify({'error': _('Missing data')}), 400  # 📌 Falta username o password
 
-    username = data.get('username')
+    email = data.get('email')
     password = data.get('password')
 
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(email=email).first()
 
     if not user:
         return jsonify({'error': _('User not found')}), 404  # 📌 Usuario no encontrado
@@ -65,7 +65,7 @@ def login():
         "access_token": access_token,
         "message": _("Login successful"),
         "user_id": user.id,  
-        "username": user.username
+        "email": user.email
     }), 200
 
 
