@@ -9,7 +9,7 @@ from models import db
 app = Flask(__name__)
 app.config.from_object(Config)
 
-CORS(app, origins= "http://localhost:3000")
+CORS(app, origins= [Config.FRONTEND_URL])
 
 db.init_app(app)
 jwt = JWTManager(app)
