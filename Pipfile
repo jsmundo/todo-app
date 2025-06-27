@@ -10,7 +10,7 @@ flask-jwt-extended = "*"
 flask-babel = "*"
 babel = "*"
 flask-cors = "*"
-python-dotenv = "*"
+flask-mail = "*"
 
 [dev-packages]
 

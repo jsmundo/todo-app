@@ -9,5 +9,11 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
-    def __repr__(self):
-        return f'<Task {self.title}>'
+    def serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "done": self.done,
+            "completed": self.completed.isoformat() if self.completed else None,
+        }
