@@ -1,11 +1,14 @@
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 
 load_dotenv()
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'clave_secreta')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'clave_jwt_secreta')
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=15)
+    JWT_REFRESH_TOKEN_EXPIRES =timedelta(days=30)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///tasks.db'
     FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
