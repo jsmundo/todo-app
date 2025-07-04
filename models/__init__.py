@@ -4,4 +4,4 @@ db = SQLAlchemy()
 
 
 from models.user import User
-from models.Task import Task
+from models.task import Task

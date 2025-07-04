@@ -4,7 +4,7 @@ from flask_mail import Message
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, create_refresh_token
 from flask_babel import gettext as _
 from app import app, mail, db
 from models import db, Task
@@ -44,24 +44,46 @@ def login():
         return jsonify({'error': _('Missing data')}), 400  # 📌 Falta username o password
     email = data.get('email')
     password = data.get('password')
+
+    print("📩 Email recibido:", email)
+
     user = User.query.filter_by(email=email).first()
     if not user:
-        return jsonify({'error': _('User not found')}), 404  # 📌 Usuario no encontrado
+        print("❌ Usuario no encontrado en la base de datos")
+        return jsonify({'error': _('User not found')}), 404
+    print("✅ Usuario encontrado:", user.username, "ID:", user.id)
+
+      # 📌 Usuario no encontrado
     if not check_password_hash(user.password, password):
+        print("❌ Contraseña incorrecta para", email)
+        auth = request.headers.get("Authorization")
+        print("🔐 HEADER Authorization:", auth)
+
         return jsonify({'error': _('Invalid credentials')}), 401  # 📌 Contraseña incorrecta
     access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
     return jsonify({
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "message": _("Login successful"),
         "user_id": user.id,  
         "email": user.email
-    }), 200
+          }), 200
+
+@app.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    new_access_token = create_access_token(identity=current_user)
+    return jsonify(accss_token=new_access_token),200
+
 
 #Ruta obtener tareas del usuario autenticado
 @app.route("/tareas", methods=["GET"])
 @jwt_required()
 def get_tasks():
     user_id = get_jwt_identity()
+    print("🔐 USER_ID del token:", user_id)
     tasks = Task.query.filter_by(user_id=user_id).all()
     return jsonify([task.serialize() for task in tasks]), 200
 

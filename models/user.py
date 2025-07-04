@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime,timedelta
 from models import db
-from models.Task import Task
+from models.task import Task
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
