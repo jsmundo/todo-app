@@ -8,6 +8,7 @@ from flask_babel import Babel
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flasgger import Swagger 
 from config import Config
 from models import Task, db
 
@@ -16,12 +17,35 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 mail = Mail(app)
-CORS(app, origins= "http://localhost:3000")
+CORS(app, origins= ["http://localhost:3000", "http://localhost:5173", "https://tu-frontend-en-produccion.com"])
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
 jwt = JWTManager(app)
+swagger_template = {
+    "swagger": "2.0",
+    "info": {
+        "title": "Mi API de Tareas",
+        "description": "Documentación Swagger para la API de tareas",
+        "version": "1.0"
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Token JWT. Usa el prefijo 'Bearer'. Ej: Bearer eyJ..."
+        }
+    },
+    "security": [
+        {
+            "BearerAuth": []
+        }
+    ]
+}
+
+swagger = Swagger(app, template=swagger_template)
 
 # Configurar la selección de idioma en Flask-Babel 4.0.0
 def get_locale():
@@ -90,8 +114,7 @@ def borrar_todo():
     print("✅ Todos los usuarios y tareas han sido eliminados.")
 
 
-def home():
-    return "To-Do App Backend Running!"
+
 
 if __name__ == '__main__':
     with app.app_context():

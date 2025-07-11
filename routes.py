@@ -9,9 +9,12 @@ from flask_babel import gettext as _
 from app import app, mail, db
 from models import db, Task
 from models.user import User
+from swagger_docs import register_doc, login_doc, get_tasks_doc, create_task_doc, get_task_doc, update_task_doc, delete_task_doc, mark_task_done_doc
+from flasgger import swag_from
 
 #Ruta de registro
-@app.route('/register', methods=['POST', 'GET'])  
+@app.route('/register', methods=['POST', 'GET'])
+@swag_from(register_doc)
 def register():
     print("✅ Recibida petición en /register")
     if request.method == 'GET':
@@ -38,6 +41,7 @@ def register():
 
 # Ruta para loguearte
 @app.route('/login', methods=['POST'])
+@swag_from(login_doc)
 def login():
     data = request.get_json()
     if not data or 'email' not in data or 'password' not in data:
@@ -80,6 +84,7 @@ def refresh():
 
 #Ruta obtener tareas del usuario autenticado
 @app.route("/tareas", methods=["GET"])
+@swag_from(get_tasks_doc)
 @jwt_required()
 def get_tasks():
     user_id = get_jwt_identity()
@@ -89,6 +94,7 @@ def get_tasks():
 
 # Ruta para crear nueva tarea
 @app.route("/tareas", methods=["POST"])
+@swag_from(create_task_doc)
 @jwt_required()
 def create_task():
     user_id = get_jwt_identity()
@@ -106,8 +112,10 @@ def create_task():
     db.session.commit()
     return jsonify(new_task.serialize()),201
 
+
 #obtener la tarea por su id
 @app.route("/tareas/<int:id>", methods=["GET"])
+@swag_from(get_task_doc)
 @jwt_required()
 def get_task(id):
     user_id = get_jwt_identity()
@@ -118,6 +126,7 @@ def get_task(id):
 
 # Ruta actulizar el titulo y description
 @app.route("/tareas/<int:id>", methods=["PUT"])
+@swag_from(update_task_doc)
 @jwt_required()
 def update_task(id):
     user_id = get_jwt_identity()
@@ -132,6 +141,7 @@ def update_task(id):
 
 # Ruta para marcar tarea como hecha
 @app.route("/tareas/<int:id>/done", methods=["PATCH"])
+@swag_from(mark_task_done_doc)
 @jwt_required()
 def mark_task_done(id):
     user_id = get_jwt_identity()
@@ -140,11 +150,12 @@ def mark_task_done(id):
         return jsonify({"error": "Tarea no encontrada"}), 400
     task.done = True
     task.completed = datetime.now()
-    db.session.commit
+    db.session.commit()
     return jsonify(task.serialize()),200
 
 #Ruta para borrar taraeas
 @app.route("/tareas/<int:id>", methods=["DELETE"])
+@swag_from(delete_task_doc)
 @jwt_required()
 def delete_task(id):
     user_id = get_jwt_identity()
