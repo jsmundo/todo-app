@@ -1,30 +1,45 @@
-from flask import Flask
+
+
+
+
+from flask import Flask, request
 from flask.cli import with_appcontext
 import click
-from flask import Flask, request
+
+# Blueprints
+from routes_new.learn import bp as learn_bp
+
+# Extensiones
 from flask_mail import Mail
 from flask_cors import CORS
 from flask_babel import Babel
-from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
-from flasgger import Swagger 
-from config import Config
-from models import Task, db
+from flasgger import Swagger
 
+# Config y modelos
+from config import Config
+from models import db, Task
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
+# --- Extensiones ---
 mail = Mail(app)
-CORS(app, origins= ["http://localhost:3000", "http://localhost:5173", "https://tu-frontend-en-produccion.com"])
+CORS(app, origins=[
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://tu-frontend-en-produccion.com"
+])
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
 jwt = JWTManager(app)
-swagger_template = {
-    "swagger": "2.0",
+
+babel = Babel(app, locale_selector=lambda: request.accept_languages.best_match(['en', 'es']))
+
+swagger_template = {  "swagger": "2.0",
     "info": {
         "title": "Mi API de Tareas",
         "description": "Documentación Swagger para la API de tareas",
@@ -42,21 +57,17 @@ swagger_template = {
         {
             "BearerAuth": []
         }
-    ]
-}
-
+    ] }  # (dejas tu template igual)
 swagger = Swagger(app, template=swagger_template)
 
-# Configurar la selección de idioma en Flask-Babel 4.0.0
-def get_locale():
-    return request.accept_languages.best_match(['en', 'es'])
+# --- Blueprints ---
+app.register_blueprint(learn_bp)
 
-babel = Babel(locale_selector=get_locale) 
-babel.init_app(app)
-
-# Importa las rutas después de definir `app`
+# --- Rutas existentes ---
 from routes import *
 
+# --- Comandos CLI personalizados ---  (los de limpiar tareas/usuarios …)
+# ... tu código CLI sin cambios ...
 @app.cli.command("limpiar-tareas-huerfanas")
 @with_appcontext
 def limpiar_tareas_huerfanas():
@@ -113,10 +124,6 @@ def borrar_todo():
     db.session.commit()
     print("✅ Todos los usuarios y tareas han sido eliminados.")
 
-
-
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+if __name__ == "__main__":
     app.run(debug=True)
+
