@@ -1,0 +1,13 @@
+# Herramientas de desarrollo para código limpio y autocompletado
+flake8
+black
+isort
+autoflake
+mypy
+
+# Extensiones VS Code (instálalas desde el marketplace):
+# - Python (by Microsoft)
+# - Pylance
+# - Flask Snippets
+# - SQLAlchemy Snippets
+# - Python Docstring Generator

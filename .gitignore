@@ -5,3 +5,15 @@ __pycache__/
 *.pyd
 *.sqlite3
 .env
+# ─── Bases de datos locales ───────────────────────────────
+instance/        # SQLite generada por Flask
+*.db             # db.sqlite, tasks.db, etc.
+*.sqlite         # por si cambias la extensión
+
+# ─── Datasets / corpora pesados ───────────────────────────
+Data/
+bilingual_eng_esp_*.csv
+
+# ─── Informes y registros temporales ──────────────────────
+flake8_report.txt
+*.log
